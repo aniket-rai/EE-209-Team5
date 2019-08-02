@@ -6,16 +6,16 @@
 
  * Created: 2/08/2019 12:50:04 PM
 
- * Author : Aniket Rai
+ * Author : Aniket Rai, Adam Wilson
 
  */ 
 
-
-
 #include <avr/io.h>
-#define BAUD 9600
-
-
+#define BAUD_RATE 9600
+#define COMMA 44
+#define SPACE 32
+#define LINE_BREAK usart_transmit(10);\
+				   usart_transmit(13)
 
 void usart_init(uint16_t ubrr){
 
@@ -23,16 +23,13 @@ void usart_init(uint16_t ubrr){
 	UCSR0C &= ~(1 << UMSEL10);
 	UCSR0C &= ~(1 << UMSEL11);
 
-	
-
 	// Character Size - 8 Bit
 	UCSR0B &= ~(1 << UCSZ02);
 	UCSR0C |= (1 << UCSZ10);
 	UCSR0C |= (1 << UCSZ11);
 	
 	// Baud Rate - 9600
-	UBRR0H = 0b0000;
-	UBRR0L = 0b01100111;
+	UBRR0 = ubrr;
 
 	// Transmitter Enable - Yes
 	UCSR0B |= (1 << TXEN0);
@@ -45,50 +42,57 @@ void usart_init(uint16_t ubrr){
 	UCSR0C &= ~(1 << USBS0);
 }
 
-
 void usart_transmit(uint8_t data){
-	while(!(UCSR0A & (1 << UDRE0)));
+	while(!(UCSR0A & (1 << UDRE0))) {
+		
+	}
 	UDR0 = data;
 }
 
-
-
 int main(void)
 {
-    // Initialize the registers in the uC
-    usart_init(1);
-    uint8_t data = 51;
-    uint8_t primeNumbers[62] = {2, 3, 5, 7, 11, 13};
-	
+    // Initialize the UART registers in the uC
+    uint16_t ubrr_val = 103; // 16000000 / (16 * BAUD_RATE) - 1;
+    usart_init(ubrr_val);
 
-    /* Replace with your application code */
-    while (1) 
-    {
-		for (int i = 0; i < 62; i++){
-			uint8_t prime = primeNumbers[i];
-			
-			if (prime/100 != 0){
-				usart_transmit(prime/100 + 48);
-				prime -= prime/100;
-			}
-			
-			if (prime < 100 && prime > 9){
-				usart_transmit(prime/10 + 48);
-				prime -= prime/10;
-			}
-			
-			if (prime < 10 && prime >= 0) {
-				usart_transmit(prime + 48);
-			}
-			
-			usart_transmit(44);
-			usart_transmit(32);
-			
+	// Prime calculator
+	uint16_t prime_numbers[62];
+	int is_prime, number, num_to_check, current_prime = 0;
+	for(number = 2; number < 300; number++) {
+		is_prime = 1;
+		num_to_check = 2;
+		do {
+		if(number % num_to_check == 0 && num_to_check != number && num_to_check != 1) {
+			is_prime = 0;
 		}
-		usart_transmit(10);
-		usart_transmit(13);
-		usart_transmit(10);
-		usart_transmit(13);
-    }
+		num_to_check++;
+		} while(is_prime == 1 && num_to_check <= number);
+    
+		if(is_prime == 1) {
+			prime_numbers[current_prime] = number;
+			current_prime++;
+		}
+	}
 
+	while (1) 
+	{
+		for (int i = 0; i < 62; i++){
+			uint16_t prime = prime_numbers[i];
+			
+			if (prime / 100 != 0){
+				usart_transmit(prime/100 + 48);
+			}
+			
+			if (prime > 9){
+				usart_transmit((prime / 10) % 10 + 48);
+			}
+			
+			usart_transmit(prime % 10 + 48);
+			
+			usart_transmit(COMMA);
+			usart_transmit(SPACE);
+		}
+		LINE_BREAK;
+		LINE_BREAK;
+	}
 }
