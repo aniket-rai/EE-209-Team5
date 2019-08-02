@@ -10,21 +10,15 @@
 
  */ 
 
-
-
 #include <avr/io.h>
 #define BAUD 9600
-
-
 
 void usart_init(uint16_t ubrr){
 
 	// Mode Selection - Asynchronous USART
 	UCSR0C &= ~(1 << UMSEL10);
 	UCSR0C &= ~(1 << UMSEL11);
-
 	
-
 	// Character Size - 8 Bit
 	UCSR0B &= ~(1 << UCSZ02);
 	UCSR0C |= (1 << UCSZ10);
@@ -52,7 +46,6 @@ void usart_transmit(uint8_t data){
 }
 
 
-
 int main(void)
 {
     // Initialize the registers in the uC
@@ -67,19 +60,19 @@ int main(void)
 		for (int i = 0; i < 62; i++){
 			uint8_t prime = primeNumbers[i];
 			
-			if (prime/100 != 0){
+			if (prime > 99 & prime < 1000) {
 				usart_transmit(prime/100 + 48);
-				prime -= prime/100;
+				prime -= (prime * (prime/100));
 			}
 			
-			if (prime < 100 && prime > 9){
+			if (prime > 9) {
 				usart_transmit(prime/10 + 48);
-				prime -= prime/10;
+				prime -= (prime * (prime/10));
 			}
 			
-			if (prime < 10 && prime >= 0) {
+			if (prime > 0) {
 				usart_transmit(prime + 48);
-			}
+			}	
 			
 			usart_transmit(44);
 			usart_transmit(32);
