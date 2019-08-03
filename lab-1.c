@@ -15,7 +15,7 @@
 #define COMMA 44
 #define SPACE 32
 #define LINE_BREAK usart_transmit(10);\
-				   usart_transmit(13)
+		   usart_transmit(13)
 
 void usart_init(uint16_t ubrr){
 
@@ -51,21 +51,22 @@ void usart_transmit(uint8_t data){
 
 int main(void)
 {
-    // Initialize the UART registers in the uC
-    uint16_t ubrr_val = 103; // 16000000 / (16 * BAUD_RATE) - 1;
-    usart_init(ubrr_val);
+	// Initialize the UART registers in the uC
+	uint16_t ubrr_val = 16000000 / 16 / BAUD_RATE - 1;
+	usart_init(ubrr_val);
 
 	// Prime calculator
 	uint16_t prime_numbers[62];
 	int is_prime, number, num_to_check, current_prime = 0;
+
 	for(number = 2; number < 300; number++) {
 		is_prime = 1;
 		num_to_check = 2;
 		do {
-		if(number % num_to_check == 0 && num_to_check != number && num_to_check != 1) {
-			is_prime = 0;
-		}
-		num_to_check++;
+			if(number % num_to_check == 0 && num_to_check != number && num_to_check != 1) {
+				is_prime = 0;
+			}
+			num_to_check++;
 		} while(is_prime == 1 && num_to_check <= number);
     
 		if(is_prime == 1) {
@@ -74,13 +75,12 @@ int main(void)
 		}
 	}
 
-	while (1) 
-	{
-		for (int i = 0; i < 62; i++){
+	while (1) {
+		for (int i = 0; i < 62; i++) {
 			uint16_t prime = prime_numbers[i];
 			
-			if (prime / 100 != 0){
-				usart_transmit(prime/100 + 48);
+			if (prime / 100 != 0) {
+				usart_transmit(prime / 100 + 48);
 			}
 			
 			if (prime > 9){
