@@ -17,7 +17,7 @@
 #define LINE_BREAK usart_transmit(10);\
 		   usart_transmit(13)
 
-void usart_init(uint16_t ubrr){
+void usart_init(uint16_t ubrr) {
 
 	// Mode Selection - Asynchronous USART
 	UCSR0C &= ~(1 << UMSEL10);
@@ -42,15 +42,14 @@ void usart_init(uint16_t ubrr){
 	UCSR0C &= ~(1 << USBS0);
 }
 
-void usart_transmit(uint8_t data){
+void usart_transmit(uint8_t data) {
 	while(!(UCSR0A & (1 << UDRE0))) {
 		
 	}
 	UDR0 = data;
 }
 
-int main(void)
-{
+int main(void) {
 	// Initialize the UART registers in the uC
 	uint16_t ubrr_val = 16000000 / 16 / BAUD_RATE - 1;
 	usart_init(ubrr_val);
@@ -59,6 +58,7 @@ int main(void)
 	uint16_t prime_numbers[62];
 	int is_prime, number, num_to_check, current_prime = 0;
 
+	// Calculate primes
 	for(number = 2; number < 300; number++) {
 		is_prime = 1;
 		num_to_check = 2;
@@ -79,18 +79,24 @@ int main(void)
 		for (int i = 0; i < 62; i++) {
 			uint16_t prime = prime_numbers[i];
 			
+			// Transmit hundreds column
 			if (prime / 100 != 0) {
 				usart_transmit(prime / 100 + 48);
 			}
 			
+			// Transmit tens column
 			if (prime > 9){
 				usart_transmit((prime / 10) % 10 + 48);
 			}
 			
+			// Transmit one column
 			usart_transmit(prime % 10 + 48);
-			
-			usart_transmit(COMMA);
-			usart_transmit(SPACE);
+		
+			// Transmit comma and space on all but last number
+			if(i < 61) {
+				usart_transmit(COMMA);
+				usart_transmit(SPACE);
+			}
 		}
 		LINE_BREAK;
 		LINE_BREAK;
