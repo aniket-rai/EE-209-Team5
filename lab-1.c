@@ -6,7 +6,7 @@
 
  * Created: 2/08/2019 12:50:04 PM
 
- * Author : Aniket Rai, Adam Wilson
+ * Author : Aniket Rai, Adam Wilson, Aron Jeremiah
 
  */ 
 
@@ -14,8 +14,8 @@
 #define BAUD_RATE 9600
 #define COMMA 44
 #define SPACE 32
-#define LINE_BREAK usart_transmit(10);\
-		   usart_transmit(13)
+#define LINE_BREAK    usart_transmit(10);
+#define LINE_BREAK_1  usart_transmit(13);
 
 void usart_init(uint16_t ubrr) {
 
@@ -99,6 +99,8 @@ int main(void) {
 			}
 		}
 		LINE_BREAK;
+		LINE_BREAK_1;
 		LINE_BREAK;
+		LINE_BREAK_1;
 	}
 }
