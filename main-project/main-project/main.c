@@ -6,10 +6,24 @@
  */ 
 
 #include <avr/io.h>
+#include <avr/interrupt.h>
 
-void uart_init()
+
+// interrupt service routines
+ISR(INT0_vect)
 {
-	// Mode Selection - Asynchronus UART
+	
+}
+
+ISR(INT1_vect)
+{
+	
+}
+
+// function that initialises the uart
+void uart_init() 
+{
+	// Mode Selection - Asynchronous UART
 	UCSR0C &= ~(1 << UMSEL10);
 	UCSR0C &= ~(1 << UMSEL11);
 	
@@ -32,6 +46,7 @@ void uart_init()
 	UCSR0C &= ~(1 << USBS0);
 }
 
+// function that initialises the adc
 void adc_init()
 {
 	// Reference Selection - AVCC
