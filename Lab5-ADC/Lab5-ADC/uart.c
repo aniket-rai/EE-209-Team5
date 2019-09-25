@@ -8,7 +8,6 @@
 #include <avr/io.h>
 
 void init_uart(uint16_t ubrr) {
-
 	// Mode Selection - Asynchronous USART
 	UCSR0C &= ~(1 << UMSEL10);
 	UCSR0C &= ~(1 << UMSEL11);
@@ -17,13 +16,13 @@ void init_uart(uint16_t ubrr) {
 	UCSR0B &= ~(1 << UCSZ02);
 	UCSR0C |= (1 << UCSZ10);
 	UCSR0C |= (1 << UCSZ11);
-	
+
 	// Baud Rate - 9600
 	UBRR0 = ubrr;
 
 	// Transmitter Enable - Yes
 	UCSR0B |= (1 << TXEN0);
-	
+
 	// Parity Mode - Disabled
 	UCSR0C &= ~(1 << UPM00);
 	UCSR0C &= ~(1 << UPM10);

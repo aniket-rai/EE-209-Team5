@@ -6,7 +6,7 @@
  */ 
 
 #include <avr/io.h>
-#include <util/delay.h>
+//#include <util/delay.h>
 #include <math.h>
 #include "adc.h"
 #include "uart.h"
@@ -25,7 +25,8 @@ void transmit_data(float data) {
 	transmit_uart(data_int + 48);
 	
 	// transmit 0.01 column
-	uint8_t data_int2 = roundf(data * 100) / 100;
+	data = fmod(data, 0.1);
+	uint8_t data_int2 = roundf(data * 100);
 	transmit_uart(data_int2 + 48);
 	transmit_uart(NEWLINE);
 	transmit_uart(STARTLINE);
@@ -35,17 +36,19 @@ int main(void)
 {
 	// Initialisation
 	init_adc();
-	init_uart(9600);
+	init_uart(103);
 	uint8_t channel = 0;
 	
     /* Reading, Converting and Transmitting Code */
     while (1) 
     {
-		//float data = 3.21;
+		//float data = 3.14659265358975323846;
 		//transmit_data(data);
 		
 		// read, convert and transmit data
-		transmit_data(convert_adc(read_adc(channel)));
+		transmit_uart(65+channel);
+		volatile double data = convert_adc(read_adc(channel));
+		transmit_data((float)data);
 			
 		// change the channel
 		if (channel == 0) {

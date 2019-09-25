@@ -38,12 +38,11 @@ uint16_t read_adc(uint8_t channel) {
 		// Blocking
 	}
 	
-	// Store adc value and convert to millivolts
-	uint16_t adc_value = (ADCL << 0) | (ADCH << 8);
-	
+	// Store adc value and returnit
+	volatile uint16_t adc_value = ADCH;
 	return adc_value;
 }
 	
 double convert_adc(uint16_t adc_value) {
-	return (float)adc_value * (float)(5000/1024);
+	return ((double)adc_value * ((double)5/(double)1024));
 }
