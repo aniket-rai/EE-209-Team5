@@ -7,7 +7,7 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-
+#include <util/delay.h>
 
 // interrupt service routines
 ISR(INT0_vect)
@@ -19,6 +19,25 @@ ISR(INT1_vect)
 {
 	
 }
+// other initializations
+void init()
+{
+	// Any logical change in INT0 generates interrupt 
+	EICRA |= (1 << ISC00);
+	EICRA &= ~(1 << ISC01);
+	
+	// Any logical change in INT1 generates interrupt
+	EICRA |= (1 << ISC10);
+	EICRA &= ~(1 << ISC11);
+	
+	// Enabling interrupts on INT0 and INT1
+	EIMSK |= (1 << INT0);
+	EIMSK |= (1 << INT1);
+	
+	// Enable global interrupts
+	sei();
+}
+
 
 // function that initialises the uart
 void uart_init() 
@@ -65,17 +84,33 @@ void adc_init()
 }
 
 
+float adc_read() {
+	
+}
+
 int main(void)
 {
 	// Declare Local Vars Here
-	
+	int n = 0;
+	int numberOfSamples = 15;
+	int currentValues[numberOfSamples] = [];
+	int voltageValues[numberOfSamples] = [];
+	int adjustedCurrent[numberOfSamples] = [];
 	
 	// Call Initialisation Functions
+	init();
 	uart_init();
 	adc_init;
 	
     /* Replace with your application code */
     while (1) 
     {
+		// save 20 values from adc
+		
+		
+		
+		// copy current and voltage values from adc
+		
+		
     }
 }
