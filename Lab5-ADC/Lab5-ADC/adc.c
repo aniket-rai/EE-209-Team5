@@ -44,5 +44,5 @@ uint16_t read_adc(uint8_t channel) {
 }
 	
 double convert_adc(uint16_t adc_value) {
-	return ((double)adc_value * ((double)5/(double)1024));
+	return ((double)adc_value * ((double)5/(double)256));
 }
