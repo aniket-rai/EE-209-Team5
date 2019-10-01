@@ -21,13 +21,13 @@ void transmit_data(float data) {
 	
 	// transmit 0.10 column
 	transmit_uart(DOT);
-	uint8_t data_int = 10*(data - (int)data);
-	transmit_uart(data_int + 48);
+	uint8_t tens = 10*(data - (int)data);
+	transmit_uart(tens + 48);
 	
 	// transmit 0.01 column
-	data = fmod(data, 0.1);
-	uint8_t data_int2 = roundf(data * 100);
-	transmit_uart(data_int2 + 48);
+	data *= 100;
+	int ones = (int)data % 10;
+	transmit_uart(ones + 48);
 	transmit_uart(NEWLINE);
 	transmit_uart(STARTLINE);
 }
