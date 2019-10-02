@@ -3,29 +3,31 @@ lab7.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .data         00000000  00800100  00800100  000001a6  2**0
+  0 .data         00000000  00800100  00800100  000001ee  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  1 .text         00000152  00000000  00000000  00000054  2**1
+  1 .text         0000017a  00000000  00000000  00000074  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  2 .comment      00000030  00000000  00000000  000001a6  2**0
+  2 .bss          00000002  00800100  00800100  000001ee  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  000001ee  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  000001d8  2**2
+  4 .note.gnu.avr.deviceinfo 00000040  00000000  00000000  00000220  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000070  00000000  00000000  00000218  2**0
+  5 .debug_aranges 00000070  00000000  00000000  00000260  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   00000aed  00000000  00000000  00000288  2**0
+  6 .debug_info   00000aed  00000000  00000000  000002d0  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 000009c4  00000000  00000000  00000d75  2**0
+  7 .debug_abbrev 000009c4  00000000  00000000  00000dbd  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   000003f8  00000000  00000000  00001739  2**0
+  8 .debug_line   00000410  00000000  00000000  00001781  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  000000d4  00000000  00000000  00001b34  2**2
+  9 .debug_frame  000000d4  00000000  00000000  00001b94  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    000004b1  00000000  00000000  00001c08  2**0
+ 10 .debug_str    00000507  00000000  00000000  00001c68  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    000000cb  00000000  00000000  000020b9  2**0
+ 11 .debug_loc    000000cb  00000000  00000000  0000216f  2**0
                   CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000040  00000000  00000000  00002184  2**0
+ 12 .debug_ranges 00000040  00000000  00000000  0000223a  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -95,11 +97,11 @@ Disassembly of section .text:
   c8:	1d 92       	st	X+, r1
 
 000000ca <.do_clear_bss_start>:
-  ca:	a0 30       	cpi	r26, 0x00	; 0
+  ca:	a2 30       	cpi	r26, 0x02	; 2
   cc:	b2 07       	cpc	r27, r18
   ce:	e1 f7       	brne	.-8      	; 0xc8 <.do_clear_bss_loop>
-  d0:	0e 94 97 00 	call	0x12e	; 0x12e <main>
-  d4:	0c 94 a7 00 	jmp	0x14e	; 0x14e <_exit>
+  d0:	0e 94 a8 00 	call	0x150	; 0x150 <main>
+  d4:	0c 94 bb 00 	jmp	0x176	; 0x176 <_exit>
 
 000000d8 <__bad_interrupt>:
   d8:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -141,67 +143,82 @@ ISR(TIMER0_COMPA_vect) {
  102:	bf 93       	push	r27
  104:	ef 93       	push	r30
  106:	ff 93       	push	r31
+	if(compare_count == 50) {
+ 108:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <_edata>
+ 10c:	90 91 01 01 	lds	r25, 0x0101	; 0x800101 <_edata+0x1>
+ 110:	82 33       	cpi	r24, 0x32	; 50
+ 112:	91 05       	cpc	r25, r1
+ 114:	39 f4       	brne	.+14     	; 0x124 <__vector_14+0x3e>
+		led_toggle();
+ 116:	0e 94 6e 00 	call	0xdc	; 0xdc <led_toggle>
 		compare_count = 0;
+ 11a:	10 92 01 01 	sts	0x0101, r1	; 0x800101 <_edata+0x1>
+ 11e:	10 92 00 01 	sts	0x0100, r1	; 0x800100 <_edata>
+ 122:	05 c0       	rjmp	.+10     	; 0x12e <__vector_14+0x48>
 	} else {
 		compare_count++;
-	}*/
-	
-	led_toggle();
- 108:	0e 94 6e 00 	call	0xdc	; 0xdc <led_toggle>
+ 124:	01 96       	adiw	r24, 0x01	; 1
+ 126:	90 93 01 01 	sts	0x0101, r25	; 0x800101 <_edata+0x1>
+ 12a:	80 93 00 01 	sts	0x0100, r24	; 0x800100 <_edata>
+	}
 }
- 10c:	ff 91       	pop	r31
- 10e:	ef 91       	pop	r30
- 110:	bf 91       	pop	r27
- 112:	af 91       	pop	r26
- 114:	9f 91       	pop	r25
- 116:	8f 91       	pop	r24
- 118:	7f 91       	pop	r23
- 11a:	6f 91       	pop	r22
- 11c:	5f 91       	pop	r21
- 11e:	4f 91       	pop	r20
- 120:	3f 91       	pop	r19
- 122:	2f 91       	pop	r18
- 124:	0f 90       	pop	r0
- 126:	0f be       	out	0x3f, r0	; 63
- 128:	0f 90       	pop	r0
- 12a:	1f 90       	pop	r1
- 12c:	18 95       	reti
+ 12e:	ff 91       	pop	r31
+ 130:	ef 91       	pop	r30
+ 132:	bf 91       	pop	r27
+ 134:	af 91       	pop	r26
+ 136:	9f 91       	pop	r25
+ 138:	8f 91       	pop	r24
+ 13a:	7f 91       	pop	r23
+ 13c:	6f 91       	pop	r22
+ 13e:	5f 91       	pop	r21
+ 140:	4f 91       	pop	r20
+ 142:	3f 91       	pop	r19
+ 144:	2f 91       	pop	r18
+ 146:	0f 90       	pop	r0
+ 148:	0f be       	out	0x3f, r0	; 63
+ 14a:	0f 90       	pop	r0
+ 14c:	1f 90       	pop	r1
+ 14e:	18 95       	reti
 
-0000012e <main>:
+00000150 <main>:
 
 int main(void)
-{
+{	
 	DDRB |= (1 << PORTB5);
- 12e:	25 9a       	sbi	0x04, 5	; 4
+ 150:	25 9a       	sbi	0x04, 5	; 4
 	timer0_init();
- 130:	0e 94 9c 00 	call	0x138	; 0x138 <timer0_init>
+ 152:	0e 94 ad 00 	call	0x15a	; 0x15a <timer0_init>
 	sei(); //Q3.1
- 134:	78 94       	sei
- 136:	ff cf       	rjmp	.-2      	; 0x136 <main+0x8>
+ 156:	78 94       	sei
+ 158:	ff cf       	rjmp	.-2      	; 0x158 <main+0x8>
 
-00000138 <timer0_init>:
+0000015a <timer0_init>:
  */ 
 #include "timer0.h"
 #include "led.h"
 void timer0_init()
 {
+	TCCR0A |= (1 << WGM01);
+ 15a:	84 b5       	in	r24, 0x24	; 36
+ 15c:	82 60       	ori	r24, 0x02	; 2
+ 15e:	84 bd       	out	0x24, r24	; 36
 	TCCR0B |= (1 << CS02) | (1 << CS00);
- 138:	85 b5       	in	r24, 0x25	; 37
- 13a:	85 60       	ori	r24, 0x05	; 5
- 13c:	85 bd       	out	0x25, r24	; 37
+ 160:	85 b5       	in	r24, 0x25	; 37
+ 162:	85 60       	ori	r24, 0x05	; 5
+ 164:	85 bd       	out	0x25, r24	; 37
 	TIMSK0 |= (1 << OCIE0A);
- 13e:	ee e6       	ldi	r30, 0x6E	; 110
- 140:	f0 e0       	ldi	r31, 0x00	; 0
- 142:	80 81       	ld	r24, Z
- 144:	82 60       	ori	r24, 0x02	; 2
- 146:	80 83       	st	Z, r24
-	OCR0A = 10;
- 148:	8a e0       	ldi	r24, 0x0A	; 10
- 14a:	87 bd       	out	0x27, r24	; 39
- 14c:	08 95       	ret
+ 166:	ee e6       	ldi	r30, 0x6E	; 110
+ 168:	f0 e0       	ldi	r31, 0x00	; 0
+ 16a:	80 81       	ld	r24, Z
+ 16c:	82 60       	ori	r24, 0x02	; 2
+ 16e:	80 83       	st	Z, r24
+	OCR0A = 155;
+ 170:	8b e9       	ldi	r24, 0x9B	; 155
+ 172:	87 bd       	out	0x27, r24	; 39
+ 174:	08 95       	ret
 
-0000014e <_exit>:
- 14e:	f8 94       	cli
+00000176 <_exit>:
+ 176:	f8 94       	cli
 
-00000150 <__stop_program>:
- 150:	ff cf       	rjmp	.-2      	; 0x150 <__stop_program>
+00000178 <__stop_program>:
+ 178:	ff cf       	rjmp	.-2      	; 0x178 <__stop_program>

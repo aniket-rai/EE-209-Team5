@@ -13,18 +13,16 @@
 int compare_count = 0;
 
 ISR(TIMER0_COMPA_vect) {
-/*	if(compare_count == 100) {
+	if(compare_count == 50) {
 		led_toggle();
 		compare_count = 0;
 	} else {
 		compare_count++;
-	}*/
-	
-	led_toggle();
+	}
 }
 
 int main(void)
-{
+{	
 	DDRB |= (1 << PORTB5);
 	timer0_init();
 	sei(); //Q3.1
