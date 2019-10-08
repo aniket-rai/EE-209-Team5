@@ -13,7 +13,7 @@
 int compare_count = 0;
 
 ISR(TIMER0_COMPA_vect) {
-	if(compare_count == 50) {
+	if(compare_count == 100) {
 		led_toggle();
 		compare_count = 0;
 	} else {

@@ -143,10 +143,10 @@ ISR(TIMER0_COMPA_vect) {
  102:	bf 93       	push	r27
  104:	ef 93       	push	r30
  106:	ff 93       	push	r31
-	if(compare_count == 50) {
+	if(compare_count == 100) {
  108:	80 91 00 01 	lds	r24, 0x0100	; 0x800100 <_edata>
  10c:	90 91 01 01 	lds	r25, 0x0101	; 0x800101 <_edata+0x1>
- 110:	82 33       	cpi	r24, 0x32	; 50
+ 110:	84 36       	cpi	r24, 0x64	; 100
  112:	91 05       	cpc	r25, r1
  114:	39 f4       	brne	.+14     	; 0x124 <__vector_14+0x3e>
 		led_toggle();
