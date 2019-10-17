@@ -60,13 +60,13 @@ int main(void)
 	uint8_t samplesToCalculate;
 
 	// Call Initialisation Functions
-	init_timer0();
-	init_interrupts();
+	//init_timer0();
+	//init_interrupts();
 	init_uart();
-	init_adc();
+	//init_adc();
 
 	// Working Loop for Main Functionality
-	while (1)
+	/*while (1)
 	{
 		if ((startOfIndex + numberOfSamples) >= 50) {
 			samplesToCalculate = 50 - startOfIndex;
@@ -91,5 +91,6 @@ int main(void)
 		transmitCurrent();
 		transmitPowerFactor();
 		transmitRealPower();
-	}
+	}*/
+
 }
