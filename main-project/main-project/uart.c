@@ -7,6 +7,13 @@
 
 #include <avr/io.h>
 
+#define V 86
+#define I 73
+#define P 80
+#define F 70
+#define EQ 61
+#define DOT 46
+
 void init_uart(uint16_t ubrr) {
 	// Mode Selection - Asynchronous USART
 	UCSR0C &= ~(1 << UMSEL10);
@@ -36,4 +43,70 @@ void transmit_uart(uint8_t data) {
 
 	}
 	UDR0 = data;
+}
+
+void transmitVoltage(double data) {
+	transmit_uart(V);
+	transmit_uart(EQ);
+
+	if(data >= 10) {
+		// transmit 10.00 column
+		uint8_t tens = (uint8_t)data/10;
+		transmit_uart(tens + 48);
+
+		// transmit 1.00 column
+		uint8_t ones = (uint8_t)data - tens*10;
+		transmit_uart(ones + 48);
+
+		// transmit 0.10 column
+		transmit_uart(DOT);
+		transmit_uart((10*(data - (int)data)) + 48);
+
+		transmit_uart(NEWLINE);
+		transmit_uart(STARTLINE);
+	}
+	else {
+		// transmit 1.00 column
+		transmit_uart((uint8_t)data + 48);
+
+		// transmit 0.10 column
+		transmit_uart(DOT);
+		uint8_t tens = 10*(data - (int)data);
+		transmit_uart(tens + 48);
+
+		// transmit 0.01 column
+		data *= 100;
+		int ones = (int)data % 10;
+		transmit_uart(ones + 48);
+
+		// New line + Startline
+		transmit_uart(NEWLINE);
+		transmit_uart(STARTLINE);
+	}
+}
+
+void transmitCurrent(double data) {
+	transmit_uart(I);
+	transmit_uart(EQ);
+
+	// transmit 100.00 column
+	uint8_t hundreds = (uint8_t)data/100;
+	transmit_uart(hundreds + 48);
+
+	// trasmit 10.00 column
+	uint8_t tens = ((uint8_t)data - hundreds*100)/10;
+	transmit_uart(tens + 48)
+
+	// transmit 1.00 column
+	uint8_t ones = (uint8_t)data - hundreds*100 - tens*10;
+	transmit_uart(ones + 48);
+
+	// transmit 0.10 column
+	transmit_uart(DOT);
+	uint8_t tens = 10*(data - (int)data);
+	transmit_uart(tens + 48);
+
+	// New line + Startline
+	transmit_uart(NEWLINE);
+	transmit_uart(STARTLINE);
 }

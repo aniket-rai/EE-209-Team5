@@ -16,38 +16,48 @@
 
 // Global Variables
 volatile uint8_t adc_value;
-volatile double valuesConverted[40];
-volatile uint8_t arrayIndex = 0;
+volatile uint8_t numberOfSamples = 50;
+volatile uint8_t startOfIndex = 0;
+volatile double voltageValues[numberOfSamples];
+volatile uint8_t voltageIndex = 0;
+volatile double currentValues[numberOfSamples];
+volatile uint8_t currentIndex = 0;
+volatile uint8_t channel = 0;
 
 // interrupt service routines;
 ISR(ADC_vect)
 {
-	adc_value = ADCH;
-
-	cli();
-
-	valuesConverted[arrayIndex] = convert_adc(adc_value);
-	arrayIndex++;
-
-	if (arrayIndex < 40) {
-		sei();
+	if (currentIndex == 40) {
+		voltagevalues[startOfIndex] = convert_adc(ADCH);
+		startOfIndex++;
+		arrayIndex = startOfIndex;
+		channel = 1;
 	}
 
-}
+	if (channel == 0) {
+		voltageValues[arrayIndex] = convert_adc(ADCH);
+		voltageIndex++;
+		channel = 1;
+	}
+	else if (channel == 1) {
+		currentValues[arrayIndex] = convert_adc(ADCH);
+		currentIndex++;
+		channel = 0;
+	}
 
-ISR()
-{
-
+	read_adc(channel);
 }
 
 int main(void)
 {
-	// Declare Local Vars Here
-	int n = 0;
-	int numberOfSamples = 15;
-	int currentValues[numberOfSamples] = [];
-	int voltageValues[numberOfSamples] = [];
-	int adjustedCurrent[numberOfSamples] = [];
+	// Local variables here
+	double voltageRMS = 0;
+	double voltagePeak = 0;
+	double currentRMS = 0;
+	double realPower = 0;
+	double powerFactor = 0;
+	uint8_t numberOfSamples = 20;
+	uint8_t samplesToCalculate;
 
 	// Call Initialisation Functions
 	init_timer0();
@@ -58,12 +68,28 @@ int main(void)
 	// Working Loop for Main Functionality
 	while (1)
 	{
-	// save 20 values from adc
+		if ((startOfIndex + numberOfSamples) >= 50) {
+			samplesToCalculate = 50 - startOfIndex;
+		}
+		else {
+			samplesToCalculate = numberOfSamples;
+		}
 
+		cli();
+		for (int i = 0; i < startOfIndex+samplesToCalculate; i++) {
+			voltageRMS += voltageValues[i]^2;
+			currentRMS += currentRMS[i]^2;
+		}
+		sei();
 
+		voltageRMS = sqrt(voltageRMS/samplesToCalculate);
+		currentRMS = sqrt(currentRMS/samplesToCalculate);
+		// POWER FACTOR ALGO HERE
+		realPower = voltageRMS * currentRMS * powerFactor;
 
-	// copy current and voltage values from adc
-
-
+		transmitVoltage();
+		transmitCurrent();
+		transmitPowerFactor();
+		transmitRealPower();
 	}
 }
