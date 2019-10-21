@@ -6,6 +6,7 @@
  */
 
 #include <avr/io.h>
+#include <avr/interrupt.h> 
 #include "adc.h"
 
 void init_adc() {
@@ -18,9 +19,11 @@ void init_adc() {
 
 	// Enable Conversion
 	ADCSRA |= (1 << ADEN);
+	
+	ADCSRA |= (1 << ADIE) | (1 << ADATE);
 
-	// Set prescaler
-	ADCSRA |= (1 << ADPS0);
+	// Set prescaler - 64
+//	ADCSRA |= (1 << ADPS0);
 	ADCSRA |= (1 << ADPS1);
 	ADCSRA |= (1 << ADPS2);
 

@@ -7,13 +7,13 @@
 
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <util/delay.h>
-#include <math.h>
+/*#include <util/delay.h>
+#include <math.h>*/
 #include "adc.h"
 #include "uart.h"
-#include "interrupts.h"
-#include "timers.h"
-
+/*#include "interrupts.h"
+#include "timers.h"*/
+/*
 // Global Variables
 volatile uint8_t adc_value;
 volatile uint8_t numberOfSamples = 50;
@@ -28,7 +28,7 @@ volatile uint8_t channel = 0;
 ISR(ADC_vect)
 {
 	if (currentIndex == 40) {
-		voltagevalues[startOfIndex] = convert_adc(ADCH);
+		voltageValues[startOfIndex] = convert_adc(ADCH);
 		startOfIndex++;
 		arrayIndex = startOfIndex;
 		channel = 1;
@@ -46,12 +46,43 @@ ISR(ADC_vect)
 	}
 
 	read_adc(channel);
+}*/
+
+// Global Variables
+#define NUMBER_OF_SAMPLES 50
+volatile uint8_t adc_value;
+//volatile uint8_t numberOfSamples = 50;
+volatile uint8_t startOfIndex = 0;
+volatile uint8_t voltageValues[NUMBER_OF_SAMPLES];
+volatile uint8_t voltageIndex = 0;
+volatile uint8_t currentValues[NUMBER_OF_SAMPLES];
+volatile uint8_t currentIndex = 0;
+volatile uint8_t channel = 0;
+
+// interrupt service routines;
+ISR(ADC_vect)
+{
+	if (channel == 0) {
+		if(voltageIndex == 50) {
+			voltageIndex = 0;
+		}
+		voltageValues[voltageIndex] = ADCH;
+		voltageIndex++;
+		channel = 1;
+	} else if (channel == 1) {
+		if(currentIndex == 50) {
+			currentIndex = 0;
+		}
+		currentValues[currentIndex] = ADCH;
+		currentIndex++;
+		channel = 0;
+	}
 }
 
 int main(void)
 {
 	// Local variables here
-	double voltageRMS = 0;
+/*	double voltageRMS = 0;
 	double voltagePeak = 0;
 	double currentRMS = 0;
 	double realPower = 0;
@@ -61,14 +92,17 @@ int main(void)
 
 	// Call Initialisation Functions
 	//init_timer0();
-	//init_interrupts();
+	//init_interrupts();*/
 	init_uart();
-	//init_adc();
+	init_adc();
+	sei();
+	int i = 0;
+	int v = 0;
 
 	// Working Loop for Main Functionality
-	/*while (1)
+	while (1)
 	{
-		if ((startOfIndex + numberOfSamples) >= 50) {
+	/*	if ((startOfIndex + numberOfSamples) >= 50) {
 			samplesToCalculate = 50 - startOfIndex;
 		}
 		else {
@@ -86,11 +120,21 @@ int main(void)
 		currentRMS = sqrt(currentRMS/samplesToCalculate);
 		// POWER FACTOR ALGO HERE
 		realPower = voltageRMS * currentRMS * powerFactor;
-
-		transmitVoltage();
-		transmitCurrent();
-		transmitPowerFactor();
-		transmitRealPower();
-	}*/
+*/
+		
+		if(v == 20) {
+			v = 0;
+		}
+		if(i == 20) {
+			i = 0;
+		}
+		transmitVoltage(convert_adc(voltageValues[v]));
+		transmitCurrent(convert_adc(currentValues[i]));
+		v++;
+		i++;
+/*		transmitCurrent(298.3);
+		transmitRealPower(15.99);
+		transmitPowerFactor(0.9103);*/
+	}
 
 }
