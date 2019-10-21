@@ -35,16 +35,16 @@ void init_adc() {
 	ADCSRA |= (1 << ADSC);
 }
 
-uint16_t read_adc(uint8_t channel) {
+void change_adc_channel(uint8_t channel) {
 	// Stop Conversion
-	ADCSRA &= ~(1 << ADSC);
+//	ADCSRA &= ~(1 << ADSC);
 
 	// Set the channel to argument passed in
 	ADMUX = 0b01100000;
 	ADMUX |= channel;
 
 	// Start converting
-	ADCSRA |= (1 << ADSC);
+//	ADCSRA |= (1 << ADSC);
 }
 
 double convert_adc(uint8_t adc_value) {
