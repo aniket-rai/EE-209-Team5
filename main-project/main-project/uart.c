@@ -89,8 +89,8 @@ void transmitVoltage(double data) {
 	}
 	
 	// New line + Startline
-	transmit_uart(SLASH);
-	transmit_uart(N);
+	transmit_uart(NEWLINE);
+	
 }
 
 /* Current Transmission Function */
@@ -117,8 +117,8 @@ void transmitCurrent(double data) {
 	transmit_uart(tenths + 48);
 
 	// New line + Startline
-	transmit_uart(SLASH);
-	transmit_uart(N);
+	transmit_uart(NEWLINE);
+	
 
 }
 
@@ -145,8 +145,8 @@ void transmitPowerFactor(double data) {
 	transmit_uart(hundreds + 48);
 	
 	// New line + Startline
-	transmit_uart(SLASH);
-	transmit_uart(N);
+	transmit_uart(NEWLINE);
+	
 }
 
 /* Real Power Transmission Function */
@@ -190,6 +190,6 @@ void transmitRealPower(double data) {
 	}
 	
 	// New line + Startline
-	transmit_uart(SLASH);
-	transmit_uart(N);
+	transmit_uart(NEWLINE);
+	
 }
