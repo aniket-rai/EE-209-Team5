@@ -1,10 +1,3 @@
-/*
- * uart.h
- *
- * Created: 25/09/2019 2:51:58 pm
- *  Author: Aniket
- */ 
-
 #ifndef _UART_H
 #define _UART_H
 

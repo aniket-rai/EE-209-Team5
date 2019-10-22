@@ -19,6 +19,7 @@
 #define SLASH 92
 #define N 'n'
 #define UBRR0_VALUE 103
+#define NEWLINE 10
 
 // initialises the uart module
 void init_uart(uint16_t ubrr) {
@@ -27,7 +28,6 @@ void init_uart(uint16_t ubrr) {
 	UCSR0C &= ~(1 << UMSEL11);
 
 	// Character Size - 8 Bit
-	UCSR0B &= ~(1 << UCSZ02);
 	UCSR0C |= (1 << UCSZ10);
 	UCSR0C |= (1 << UCSZ11);
 
@@ -36,13 +36,6 @@ void init_uart(uint16_t ubrr) {
 
 	// Transmitter Enable - Yes
 	UCSR0B |= (1 << TXEN0);
-
-	// Parity Mode - Disabled
-	UCSR0C &= ~(1 << UPM00);
-	UCSR0C &= ~(1 << UPM10);
-
-	// Stop Bit Selection - 1 bit
-	UCSR0C &= ~(1 << USBS0);
 }
 
 // transmits data passed in through a uart
@@ -76,10 +69,6 @@ void transmitVoltage(double data) {
 		// transmit 0.01 column
 		uint8_t tenth = (uint8_t)(data*100 - (uint8_t)(data)*100 - oneth*10);
 		transmit_uart(tenth + 48);
-
-		// New line + Startline
-		transmit_uart(SLASH);
-		transmit_uart(N);
 	}
 	else {
 		// transmit 1.00 column
@@ -97,11 +86,11 @@ void transmitVoltage(double data) {
 		// transmit 0.001 column
 		uint8_t hundreds = (uint8_t)(data*1000 - (uint8_t)(data)*1000 - tens*10 - ones*100);
 		transmit_uart(hundreds + 48);
-
-		// New line + Startline
-		transmit_uart(SLASH);
-		transmit_uart(N);
 	}
+	
+	// New line + Startline
+	transmit_uart(SLASH);
+	transmit_uart(N);
 }
 
 /* Current Transmission Function */
@@ -130,6 +119,7 @@ void transmitCurrent(double data) {
 	// New line + Startline
 	transmit_uart(SLASH);
 	transmit_uart(N);
+
 }
 
 /* Power Factor Transmission Function */
@@ -153,7 +143,7 @@ void transmitPowerFactor(double data) {
 	// tranmit 0.001 column
 	uint8_t hundreds = (uint8_t)(data*1000 - tens*10 - ones*100);
 	transmit_uart(hundreds + 48);
-
+	
 	// New line + Startline
 	transmit_uart(SLASH);
 	transmit_uart(N);
@@ -181,10 +171,6 @@ void transmitRealPower(double data) {
 
 		// transmit 0.01 column
 		transmit_uart((data - tens*10 - ones - tenth/10)*100 + 48);
-
-		// New line + Startline
-		transmit_uart(SLASH);
-		transmit_uart(N);
 	}
 	else {
 		// transmit 1.00 column
@@ -201,9 +187,9 @@ void transmitRealPower(double data) {
 
 		// transmit 0.001 column
 		transmit_uart((uint8_t)(fmod(data*1000, 10)) + 48);
-
-		// New line + Startline
-		transmit_uart(SLASH);
-		transmit_uart(N);
 	}
+	
+	// New line + Startline
+	transmit_uart(SLASH);
+	transmit_uart(N);
 }

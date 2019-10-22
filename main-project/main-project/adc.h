@@ -3,6 +3,6 @@
 
 void init_adc();
 void change_adc_channel(uint8_t channel);
-double convert_adc(uint8_t adc_value);
+double convert_adc_value(uint8_t adc_value);
 
 #endif

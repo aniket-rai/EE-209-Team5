@@ -24,29 +24,31 @@ volatile uint8_t voltageValues[NUMBER_OF_SAMPLES];
 volatile uint8_t voltageIndex = 0;
 volatile uint8_t currentValues[NUMBER_OF_SAMPLES];
 volatile uint8_t currentIndex = 0;
-volatile uint8_t channel = 0;
+volatile uint8_t adcChannel = 0;
 
 // ADC Interrupt Service routine that when triggered saves either the current
 // or voltage value into the respective array.
 ISR(ADC_vect)
-{
-	if (channel == 0) {
+{	
+	// Voltage sampling
+	if (adcChannel == 0) {
 		if(voltageIndex == 50) {
 			voltageIndex = 0;
 		}
 		voltageValues[voltageIndex] = ADCH;
 		voltageIndex++;
-		channel = 4;
-		change_adc_channel(channel);
+		adcChannel = 4;
+		change_adc_channel(adcChannel);
 	}
-	else if (channel == 4) {
+	// Current sampling
+	else if (adcChannel == 4) {
 		if(currentIndex == 50) {
 			currentIndex = 0;
 		}
 		currentValues[currentIndex] = ADCH;
 		currentIndex++;
-		channel = 0;
-		change_adc_channel(channel);
+		adcChannel = 0;
+		change_adc_channel(adcChannel);
 	}
 }
 
@@ -96,10 +98,10 @@ int main(void)
 			}
 
 			// Calculate Vrms, Irms, Real Power and Power Factor
-			voltageSample = VOLTAGE_FACTOR * (convert_adc(voltageValues[i]) - OFFSET);
+			voltageSample = VOLTAGE_FACTOR * (convert_adc_value(voltageValues[i]) - OFFSET);
 			voltageRMS += pow(voltageSample,2);
 
-			currentSample = CURRENT_FACTOR * (convert_adc(currentValues[i]) - OFFSET);
+			currentSample = CURRENT_FACTOR * (convert_adc_value(currentValues[i]) - OFFSET);
 			currentRMS += pow(currentSample,2);
 
 			realPower += voltageSample * currentSample / 1000;
@@ -112,7 +114,7 @@ int main(void)
 
 		sei();
 
-		volatile double floatvoltagepk = VOLTAGE_FACTOR * (convert_adc(voltagePeak) - OFFSET);
+		volatile double floatvoltagepk = VOLTAGE_FACTOR * (convert_adc_value(voltagePeak) - OFFSET);
 
 		// Transmit the respective values
 		transmitVoltage(floatvoltagepk);

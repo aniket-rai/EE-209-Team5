@@ -21,7 +21,8 @@ void init_adc() {
 
 	// Enable Conversion
 	ADCSRA |= (1 << ADEN);
-
+	
+	// Enable ADC Interrupts
 	ADCSRA |= (1 << ADIE);
 
 	// Set prescaler - 64
@@ -47,6 +48,6 @@ void change_adc_channel(uint8_t channel) {
 	ADCSRA |= (1 << ADSC);
 }
 
-double convert_adc(uint8_t adc_value) {
+double convert_adc_value(uint8_t adc_value) {
 	return ((double)adc_value * ((double)VCC/(double)resolution));
 }
