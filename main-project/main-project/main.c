@@ -1,21 +1,24 @@
 /*
- * main-project.c
+ * Main project file -> this file contains the main algorithm that provides the
+ * main functionality of the project.
  *
- * Created: 2/09/2019 3:59:08 pm
- * Author : Aniket
+ * Author: Aniket Rai & Adam Wilson
  */
 
+// Libraries Needed
 #include <avr/io.h>
 #include <avr/interrupt.h>
-//#include <util/delay.h>
 #include <math.h>
 #include "adc.h"
 #include "uart.h"
 
-// Global Variables
+// Macros
 #define NUMBER_OF_SAMPLES 50
-volatile uint8_t adc_value;
-//volatile uint8_t numberOfSamples = 50;
+#define VOLTAGE_FACTOR 16.85
+#define CURRENT_FACTOR 1000
+#define OFFSET 1.82
+
+// Global Variables
 volatile uint8_t startOfIndex = 0;
 volatile uint8_t voltageValues[NUMBER_OF_SAMPLES];
 volatile uint8_t voltageIndex = 0;
@@ -23,7 +26,8 @@ volatile uint8_t currentValues[NUMBER_OF_SAMPLES];
 volatile uint8_t currentIndex = 0;
 volatile uint8_t channel = 0;
 
-// interrupt service routines;
+// ADC Interrupt Service routine that when triggered saves either the current
+// or voltage value into the respective array.
 ISR(ADC_vect)
 {
 	if (channel == 0) {
@@ -32,9 +36,10 @@ ISR(ADC_vect)
 		}
 		voltageValues[voltageIndex] = ADCH;
 		voltageIndex++;
-		channel = 1;
+		channel = 4;
 		change_adc_channel(channel);
-	} else if (channel == 1) {
+	}
+	else if (channel == 4) {
 		if(currentIndex == 50) {
 			currentIndex = 0;
 		}
@@ -45,19 +50,20 @@ ISR(ADC_vect)
 	}
 }
 
+
 int main(void)
 {
 	// Local variables here
 	uint8_t voltagePeak = 0;
+	double voltageRMS = 0;
 	double currentRMS = 0;
 	double realPower = 0;
-	//double powerFactor = 0;
-//	uint8_t numberOfSamples = 20;
+	double voltageSample;
+	double currentSample;
+	double powerFactor = 0;
 	uint8_t samplesToCalculate;
 
 	// Call Initialization Functions
-	//init_timer0();
-	//init_interrupts();*/
 	init_uart();
 	init_adc();
 	sei();
@@ -65,6 +71,7 @@ int main(void)
 	// Working Loop for Main Functionality
 	while (1)
 	{
+		// Ensure we won't access anythng out of the array
 		if ((startOfIndex + NUMBER_OF_SAMPLES) >= 50) {
 			samplesToCalculate = 50 - startOfIndex;
 		}
@@ -72,26 +79,46 @@ int main(void)
 			samplesToCalculate = NUMBER_OF_SAMPLES;
 		}
 
+		// Clear interrupts and ready data for calculations
 		cli();
 		voltagePeak = 0;
+
+		// Linear Approximation
+		for (int x = 0; x < sizeof(currentValues)/sizeof(double); x++) {
+			currentValues[x] = 0.5*(currentValues[x]+currentValues[x+1]);
+		}
+
+		// Calculation loop
 		for (int i = 0; i < startOfIndex+samplesToCalculate; i++) {
+			// find max of values sampled as treat that as v-peak
 			if(voltageValues[i] > voltagePeak) {
 				voltagePeak = voltageValues[i];
 			}
-			double currentSample = convert_adc(currentValues[i]);
+
+			// Calculate Vrms, Irms, Real Power and Power Factor
+			voltageSample = VOLTAGE_FACTOR * (convert_adc(voltageValues[i]) - OFFSET);
+			voltageRMS += pow(voltageSample,2);
+
+			currentSample = CURRENT_FACTOR * (convert_adc(currentValues[i]) - OFFSET);
 			currentRMS += pow(currentSample,2);
-			realPower += convert_adc(voltageValues[i]) * currentSample;
+
+			realPower += voltageSample * currentSample / 1000;
 		}
-		
+
+		voltageRMS = sqrt(voltageRMS/samplesToCalculate);
 		currentRMS = sqrt(currentRMS/samplesToCalculate);
 		realPower /= NUMBER_OF_SAMPLES;
-		sei();
-//		realPower = voltageRMS * currentRMS * powerFactor;
+		powerFactor = realPower / (voltageRMS * currentRMS / 1000);
 
-		transmitVoltage(convert_adc(voltagePeak));
+		sei();
+
+		volatile double floatvoltagepk = VOLTAGE_FACTOR * (convert_adc(voltagePeak) - OFFSET);
+
+		// Transmit the respective values
+		transmitVoltage(floatvoltagepk);
 		transmitCurrent(currentRMS);
 		transmitRealPower(realPower);
-/*		transmitPowerFactor(0.9103);*/
+		transmitPowerFactor(powerFactor);
 	}
 
 }
