@@ -8,14 +8,14 @@
 // Libraries Needed
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <math.h>
+#include <math.h> 
 #include "adc.h"
 #include "uart.h"
 
 // Macros
 #define NUMBER_OF_SAMPLES 50
-#define VOLTAGE_FACTOR 16.85
-#define CURRENT_FACTOR 1000
+#define VOLTAGE_FACTOR 19
+#define CURRENT_FACTOR 950
 #define OFFSET 1.82
 
 // Global Variables
